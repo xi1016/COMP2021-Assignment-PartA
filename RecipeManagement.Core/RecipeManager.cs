@@ -11,109 +11,109 @@ namespace RecipeManagement.Core;
 /// </summary>
 public sealed class RecipeManager : IRecipeManager
 {
-private readonly Dictionary<int, Recipe> _recipes = new();
-private readonly List<string> _shoppingList = new();
-private readonly LinkedList<int> _cookingPlan = new();
-private readonly Stack<int> _removedHistory = new();
-private readonly Queue<string> _instructionQueue = new();
+    private readonly Dictionary<int, Recipe> _recipes = new();
+    private readonly List<string> _shoppingList = new();
+    private readonly LinkedList<int> _cookingPlan = new();
+    private readonly Stack<int> _removedHistory = new();
+    private readonly Queue<string> _instructionQueue = new();
 
 
-public RecipeManager(IEnumerable<Recipe> recipes)
-{
-    ArgumentNullException.ThrowIfNull(recipes);
-
-    foreach (Recipe recipe in recipes)
+    public RecipeManager(IEnumerable<Recipe> recipes)
     {
-        if (recipe is null)
-        {
-            throw new ArgumentException("Recipe collection must not contain null entries.");
-        }
+        ArgumentNullException.ThrowIfNull(recipes);
 
-        if (recipe.Id <= 0)
+        foreach (Recipe recipe in recipes)
         {
-            throw new ArgumentException($"Recipe ID must be positive. Received: {recipe.Id}");
-        }
+            if (recipe is null)
+            {
+                throw new ArgumentException("Recipe collection must not contain null entries.");
+            }
 
-        if (string.IsNullOrWhiteSpace(recipe.Title))
-        {
-            throw new ArgumentException($"Recipe ID {recipe.Id} must have a title.");
-        }
+            if (recipe.Id <= 0)
+            {
+                throw new ArgumentException($"Recipe ID must be positive. Received: {recipe.Id}");
+            }
 
-        if (_recipes.ContainsKey(recipe.Id))
+            if (string.IsNullOrWhiteSpace(recipe.Title))
+            {
+                throw new ArgumentException($"Recipe ID {recipe.Id} must have a title.");
+            }
+
+            if (_recipes.ContainsKey(recipe.Id))
+            {
+                throw new ArgumentException($"Duplicate recipe ID: {recipe.Id}");
+            }
+
+            _recipes.Add(recipe.Id, recipe);
+        }
+    }
+
+
+    public int RecipeCount => _recipes.Count;
+    public int ShoppingItemCount => _shoppingList.Count;
+    public int CookingPlanCount => _cookingPlan.Count;
+    public int PendingInstructionCount => _instructionQueue.Count;
+    public int RemovedRecipeCount => _removedHistory.Count;
+
+
+    public bool AddRecipe(Recipe recipe)
+    {
+        ArgumentNullException.ThrowIfNull(recipe);
+
+        if (recipe.Id <= 0 || string.IsNullOrWhiteSpace(recipe.Title) || _recipes.ContainsKey(recipe.Id))
         {
-            throw new ArgumentException($"Duplicate recipe ID: {recipe.Id}");
+            return false;
         }
 
         _recipes.Add(recipe.Id, recipe);
+        return true;
     }
-}
 
-
-public int RecipeCount => _recipes.Count;
-public int ShoppingItemCount => _shoppingList.Count;
-public int CookingPlanCount => _cookingPlan.Count;
-public int PendingInstructionCount => _instructionQueue.Count;
-public int RemovedRecipeCount => _removedHistory.Count;
-
-
-   public bool AddRecipe(Recipe recipe)
-{
-    ArgumentNullException.ThrowIfNull(recipe);
-
-    if (recipe.Id <= 0 || string.IsNullOrWhiteSpace(recipe.Title) || _recipes.ContainsKey(recipe.Id))
+    public Recipe? FindRecipe(int recipeId)
     {
-        return false;
+        return _recipes.TryGetValue(recipeId, out Recipe? recipe) ? recipe : null;
     }
 
-    _recipes.Add(recipe.Id, recipe);
-    return true;
-}
-
-public Recipe? FindRecipe(int recipeId)
-{
-    return _recipes.TryGetValue(recipeId, out Recipe? recipe) ? recipe : null;
-}
-
-public bool RemoveRecipe(int recipeId)
-{
-    if (!_recipes.ContainsKey(recipeId))
+    public bool RemoveRecipe(int recipeId)
     {
-        return false;
-    }
+        if (!_recipes.ContainsKey(recipeId))
+        {
+            return false;
+        }
 
-    if (_cookingPlan.Contains(recipeId))
-    {
-        return false;
-    }
+        if (_cookingPlan.Contains(recipeId))
+        {
+            return false;
+        }
 
-    _recipes.Remove(recipeId);
-    return true;
-}
+        _recipes.Remove(recipeId);
+        return true;
+    }
 
     public int AddIngredientsToShoppingList(int recipeId)
-{
-    if (!_recipes.TryGetValue(recipeId, out Recipe? recipe))
     {
-        return 0;
+        if (!_recipes.TryGetValue(recipeId, out Recipe? recipe))
+        {
+            return 0;
+        }
+
+        foreach (string ingredient in recipe.Ingredients)
+        {
+            _shoppingList.Add(ingredient);
+        }
+
+        return recipe.Ingredients.Count;
     }
 
-    foreach (string ingredient in recipe.Ingredients)
+    public IReadOnlyList<string> GetShoppingList()
     {
-        _shoppingList.Add(ingredient);
+        return _shoppingList.ToList();
     }
 
-    return recipe.Ingredients.Count;
-}
-
-public IReadOnlyList<string> GetShoppingList()
-{
-    return _shoppingList.ToList();
-}
-
-public void ClearShoppingList()
-{
-    _shoppingList.Clear();
-}
+    public void ClearShoppingList()
+    {
+        _shoppingList.Clear();
+    }
     public bool AddRecipeToCookingPlan(int recipeId)
     {
         if (!_recipes.ContainsKey(recipeId))
@@ -196,9 +196,9 @@ public void ClearShoppingList()
         return _instructionQueue.Count == 0 ? null : _instructionQueue.Dequeue();
     }
 
- 
-     public IReadOnlyList<Recipe> SearchByTitle(string searchText) =>
-        throw new NotImplementedException("Part B: implement SearchByTitle.");
+
+    public IReadOnlyList<Recipe> SearchByTitle(string searchText) =>
+       throw new NotImplementedException("Part B: implement SearchByTitle.");
 
     public IReadOnlyList<Recipe> SearchByIngredient(string searchText) =>
         throw new NotImplementedException("Part B: implement SearchByIngredient.");
