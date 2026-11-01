@@ -1,0 +1,19 @@
+# Build output
+bin/
+obj/
+
+# Visual Studio / VS Code
+.vs/
+*.user
+*.suo
+.vscode/
+
+# Test results
+TestResults/
+*.trx
+coverage*.xml
+
+# OS and archive junk
+__MACOSX/
+.DS_Store
+Thumbs.db
