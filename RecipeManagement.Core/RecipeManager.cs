@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace RecipeManagement.Core;
 
@@ -10,38 +11,109 @@ namespace RecipeManagement.Core;
 /// </summary>
 public sealed class RecipeManager : IRecipeManager
 {
-    // TODO Part A: add your private collection fields here.
+private readonly Dictionary<int, Recipe> _recipes = new();
+private readonly List<string> _shoppingList = new();
+private readonly LinkedList<int> _cookingPlan = new();
+private readonly Stack<int> _removedHistory = new();
+private readonly Queue<string> _instructionQueue = new();
 
-    public RecipeManager(IEnumerable<Recipe> recipes)
+
+public RecipeManager(IEnumerable<Recipe> recipes)
+{
+    ArgumentNullException.ThrowIfNull(recipes);
+
+    foreach (Recipe recipe in recipes)
     {
-        // TODO Part A: validate recipes and build Dictionary<int, Recipe>.
-        _ = recipes;
+        if (recipe is null)
+        {
+            throw new ArgumentException("Recipe collection must not contain null entries.");
+        }
+
+        if (recipe.Id <= 0)
+        {
+            throw new ArgumentException($"Recipe ID must be positive. Received: {recipe.Id}");
+        }
+
+        if (string.IsNullOrWhiteSpace(recipe.Title))
+        {
+            throw new ArgumentException($"Recipe ID {recipe.Id} must have a title.");
+        }
+
+        if (_recipes.ContainsKey(recipe.Id))
+        {
+            throw new ArgumentException($"Duplicate recipe ID: {recipe.Id}");
+        }
+
+        _recipes.Add(recipe.Id, recipe);
+    }
+}
+
+
+public int RecipeCount => _recipes.Count;
+public int ShoppingItemCount => _shoppingList.Count;
+public int CookingPlanCount => _cookingPlan.Count;
+public int PendingInstructionCount => _instructionQueue.Count;
+public int RemovedRecipeCount => _removedHistory.Count;
+
+
+   public bool AddRecipe(Recipe recipe)
+{
+    ArgumentNullException.ThrowIfNull(recipe);
+
+    if (recipe.Id <= 0 || string.IsNullOrWhiteSpace(recipe.Title) || _recipes.ContainsKey(recipe.Id))
+    {
+        return false;
     }
 
-    public int RecipeCount => 0;
-    public int ShoppingItemCount => 0;
-    public int CookingPlanCount => 0;
-    public int PendingInstructionCount => 0;
-    public int RemovedRecipeCount => 0;
+    _recipes.Add(recipe.Id, recipe);
+    return true;
+}
 
-    public bool AddRecipe(Recipe recipe) =>
-        throw new NotImplementedException("Part A: implement AddRecipe.");
+public Recipe? FindRecipe(int recipeId)
+{
+    return _recipes.TryGetValue(recipeId, out Recipe? recipe) ? recipe : null;
+}
 
-    public Recipe? FindRecipe(int recipeId) =>
-        throw new NotImplementedException("Part A: implement FindRecipe.");
+public bool RemoveRecipe(int recipeId)
+{
+    if (!_recipes.ContainsKey(recipeId))
+    {
+        return false;
+    }
 
-    public bool RemoveRecipe(int recipeId) =>
-        throw new NotImplementedException("Part A: implement RemoveRecipe.");
+    if (_cookingPlan.Contains(recipeId))
+    {
+        return false;
+    }
 
-    public int AddIngredientsToShoppingList(int recipeId) =>
-        throw new NotImplementedException("Part A: implement AddIngredientsToShoppingList.");
+    _recipes.Remove(recipeId);
+    return true;
+}
 
-    public IReadOnlyList<string> GetShoppingList() =>
-        throw new NotImplementedException("Part A: implement GetShoppingList.");
+    public int AddIngredientsToShoppingList(int recipeId)
+{
+    if (!_recipes.TryGetValue(recipeId, out Recipe? recipe))
+    {
+        return 0;
+    }
 
-    public void ClearShoppingList() =>
-        throw new NotImplementedException("Part A: implement ClearShoppingList.");
+    foreach (string ingredient in recipe.Ingredients)
+    {
+        _shoppingList.Add(ingredient);
+    }
 
+    return recipe.Ingredients.Count;
+}
+
+public IReadOnlyList<string> GetShoppingList()
+{
+    return _shoppingList.ToList();
+}
+
+public void ClearShoppingList()
+{
+    _shoppingList.Clear();
+}
     public bool AddRecipeToCookingPlan(int recipeId) =>
         throw new NotImplementedException("Part A: implement AddRecipeToCookingPlan.");
 
