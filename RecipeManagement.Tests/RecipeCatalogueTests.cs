@@ -41,5 +41,25 @@ public sealed class RecipeCatalogueTests
 
         Assert.True(manager.RemoveRecipe(100));
         Assert.Null(manager.FindRecipe(100));
+        Assert.Equal(0, manager.RecipeCount);
+    }
+
+    [Fact]
+    public void FindRecipe_MissingId_ReturnsNull()
+    {
+        var manager = new RecipeManager(new[] { new Recipe { Id = 100, Title = "Test Soup" } });
+
+        Assert.Null(manager.FindRecipe(999));
+        Assert.Equal(1, manager.RecipeCount);
+    }
+
+    [Fact]
+    public void RemoveRecipe_MissingId_ReturnsFalseWithoutChangingCatalogue()
+    {
+        var manager = new RecipeManager(new[] { new Recipe { Id = 100, Title = "Test Soup" } });
+
+        Assert.False(manager.RemoveRecipe(999));
+        Assert.Equal(1, manager.RecipeCount);
+        Assert.NotNull(manager.FindRecipe(100));
     }
 }
