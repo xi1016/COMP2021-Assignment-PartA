@@ -52,7 +52,8 @@ AI acknowledgement: I used WorkBuddy to help me understand the required behaviou
 ## Test summary (Part A)
 
 - `RecipeManagerTests.cs` — supplied example tests (kept unchanged).
-- `RecipeCatalogueTests.cs` — add/find/remove behaviour, duplicate and non-positive IDs.
+- `RecipeCatalogueTests.cs` — add/find/remove behaviour, duplicate, missing and non-positive IDs.
+- `ShoppingListTests.cs` — ingredient order, append across recipes, snapshot reads and clearing.
 - `RecipeWorkflowTests.cs` — empty stack, empty queue, duplicate plan entry, remove-while-planned, and an end-to-end component interaction test.
 
-13 tests pass, 0 fail.
+19 tests pass, 0 fail (`dotnet test`).
