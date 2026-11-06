@@ -54,7 +54,9 @@ AI acknowledgement: I used WorkBuddy to help me understand the required behaviou
 - `RecipeManagerTests.cs` — supplied example tests (kept unchanged).
 - `RecipeCatalogueTests.cs` — add/find/remove behaviour, duplicate, missing and non-positive IDs.
 - `RecipeManagerValidationTests.cs` — constructor rejection of null, null entries, non-positive IDs, blank titles and duplicate IDs; `AddRecipe(null)`.
+- `CookingPlanHistoryTests.cs` — plan append/remove order, history push on removal, failed restore cases (deleted recipe, already planned).
+- `CookingSessionTests.cs` — `StartCooking` guards, queue replacement between recipes, peek without removal and FIFO completion.
 - `ShoppingListTests.cs` — ingredient order, append across recipes, snapshot reads and clearing.
 - `RecipeWorkflowTests.cs` — empty stack, empty queue, duplicate plan entry, remove-while-planned, and an end-to-end component interaction test.
 
-29 tests pass, 0 fail (`dotnet test`).
+42 tests pass, 0 fail (`dotnet test`).
